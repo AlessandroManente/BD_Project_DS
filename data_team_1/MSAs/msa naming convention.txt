@@ -1,7 +1,0 @@
-This folder contains the Multiple Sequence Alignments.
-Naming convention:
-
-MSA_X_Y.fa
-
-X = Name of the method used
-Y = Try number
