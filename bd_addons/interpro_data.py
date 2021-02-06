@@ -52,7 +52,7 @@ def get_next_json(url):
     return data
 
 
-def get_df(url, qty, flag, team):
+def get_df(url, team):
     data = get_next_json(url)
 
     metadata = pd.DataFrame(columns=metadata_columns)
@@ -65,9 +65,6 @@ def get_df(url, qty, flag, team):
                 i = metadata.key.to_list()[-1] + 1
             else:
                 i = 0
-
-            remaining = qty - i
-            print('Remaining:', remaining, 'proteins')
 
             metadata, entries = json_to_df(metadata, entries, data, i)
             
@@ -82,7 +79,7 @@ def get_df(url, qty, flag, team):
                 metadata, entries = json_to_df(metadata, entries, data, i)
         
         except:
-            checkpoint(metadata, entries, flag, team, remaining)
+            checkpoint(metadata, entries, flag, team)
             time.sleep(900)
 
             if len(metadata) > 0:
@@ -105,23 +102,17 @@ def get_df(url, qty, flag, team):
 
                 metadata, entries = json_to_df(metadata, entries, data, i)
     
-    checkpoint(metadata, entries, flag, team, remaining)
+    checkpoint(metadata, entries, team)
 
     return metadata, entries
 
 
-def get_data(reviewed, unreviewed, general, team):
-    general = get_next_json(general)
-    general_reviewed = general['proteins']['reviewed']
-    general_unreviewed = general['proteins']['unreviewed']
+def get_data(url, team):
+    metadata, entries = get_df(url, team)
+    print('Got data')
 
-    metadata_reviewed, entries_reviewed = get_df(reviewed, general_reviewed, 'reviewed', team)
-    print('Got reviewed data')
-    metadata_unreviewed, entries_unreviewed = get_df(unreviewed, general_unreviewed, 'unreviewed', team)
-    print('Got unreviewed data')
+    return metadata, entries
 
-    return metadata_reviewed, entries_reviewed, metadata_unreviewed, entries_unreviewed
-
-def checkpoint(df_metadata, df_entries, flag, team, remaining):
-    df_metadata.to_csv(cur+'\\data_team_'+str(team)+'\\'+flag+'\\metadata\\metadata_'+flag+'_'+str(remaining)+'.csv')
-    df_entries.to_csv(cur+'\\data_team_'+str(team)+'\\'+flag+'\\entries\\entries_'+flag+'_'+str(remaining)+'.csv')
+def checkpoint(df_metadata, df_entries, team):
+    df_metadata.to_csv(cur+'\\data_team_'+str(team)+'\\metadata\\metadata_csv')
+    df_entries.to_csv(cur+'\\data_team_'+str(team)+'\\entries\\entries.csv')
