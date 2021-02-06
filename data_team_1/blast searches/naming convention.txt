@@ -1,0 +1,7 @@
+This folder contains the BLAST search.
+Naming convention:
+
+blastsearch_X_Y
+
+X = Number of hits
+Y = Try number
