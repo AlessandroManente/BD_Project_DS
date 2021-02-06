@@ -1,6 +1,10 @@
 import pandas as pd
 import urllib
 import json
+import time
+import os
+
+cur = os.getcwd()
 
 metadata_columns = ['key', 'accession', 'name', 'source_database', 'length', 'source_organism_taxID', 'source_organism_scientificName', 'source_organism_fullName']
 entries_columns = ['key', 'accession', 'entry_protein_locations_fragments_start', 'entry_protein_locations_fragments_end', 'entry_protein_locations_fragments_dc-status', 'entry_protein_locations_model', 'entry_protein_locations_score', 'protein_length', 'source_database', 'entry_type', 'entry_integrated']
@@ -48,7 +52,7 @@ def get_next_json(url):
     return data
 
 
-def get_df(url, qty):
+def get_df(url, qty, flag, team):
     data = get_next_json(url)
 
     metadata = pd.DataFrame(columns=metadata_columns)
@@ -56,39 +60,68 @@ def get_df(url, qty):
     
 
     while data['next'] is not None:
-        if len(metadata) > 0:
-            i = metadata.key.to_list()[-1] + 1
-        else:
-            i = 0
-
-        remaining = qty - i
-        print('Remaining:', remaining, 'proteins')
-
-        metadata, entries = json_to_df(metadata, entries, data, i)
-        
-        data = get_next_json(data['next'])
-
-        
-
-        if data['next'] is None:
+        try:
             if len(metadata) > 0:
                 i = metadata.key.to_list()[-1] + 1
             else:
                 i = 0
 
+            remaining = qty - i
+            print('Remaining:', remaining, 'proteins')
+
             metadata, entries = json_to_df(metadata, entries, data, i)
+            
+            data = get_next_json(data['next'])
+
+            if data['next'] is None:
+                if len(metadata) > 0:
+                    i = metadata.key.to_list()[-1] + 1
+                else:
+                    i = 0
+
+                metadata, entries = json_to_df(metadata, entries, data, i)
+        
+        except:
+            checkpoint(metadata, entries, flag, team, remaining)
+            time.sleep(900)
+
+            if len(metadata) > 0:
+                i = metadata.key.to_list()[-1] + 1
+            else:
+                i = 0
+
+            remaining = qty - i
+            print('Remaining:', remaining, 'proteins')
+
+            metadata, entries = json_to_df(metadata, entries, data, i)
+            
+            data = get_next_json(data['next'])
+
+            if data['next'] is None:
+                if len(metadata) > 0:
+                    i = metadata.key.to_list()[-1] + 1
+                else:
+                    i = 0
+
+                metadata, entries = json_to_df(metadata, entries, data, i)
     
+    checkpoint(metadata, entries, flag, team, remaining)
+
     return metadata, entries
 
 
-def get_data(reviewed, unreviewed, general):
+def get_data(reviewed, unreviewed, general, team):
     general = get_next_json(general)
     general_reviewed = general['proteins']['reviewed']
     general_unreviewed = general['proteins']['unreviewed']
 
-    metadata_reviewed, entries_reviewed = get_df(reviewed, general_reviewed)
+    metadata_reviewed, entries_reviewed = get_df(reviewed, general_reviewed, 'reviewed', team)
     print('Got reviewed data')
-    metadata_unreviewed, entries_unreviewed = get_df(unreviewed, general_unreviewed)
+    metadata_unreviewed, entries_unreviewed = get_df(unreviewed, general_unreviewed, 'unreviewed', team)
     print('Got unreviewed data')
 
     return metadata_reviewed, entries_reviewed, metadata_unreviewed, entries_unreviewed
+
+def checkpoint(df_metadata, df_entries, flag, team, remaining):
+    df_metadata.to_csv(cur+'\\data_team_'+str(team)+'\\'+flag+'\\metadata\\metadata_'+flag+'_'+str(remaining)+'.csv')
+    df_entries.to_csv(cur+'\\data_team_'+str(team)+'\\'+flag+'\\entries\\entries_'+flag+'_'+str(remaining)+'.csv')
