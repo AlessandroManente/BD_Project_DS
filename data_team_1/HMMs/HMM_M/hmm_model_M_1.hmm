@@ -1,5 +1,5 @@
 HMMER3/f [3.3.1 | Jul 2020]
-NAME  MSA_Muscle_1
+NAME  MSA_M_1
 LENG  357
 ALPH  amino
 RF    no
@@ -7,7 +7,7 @@ MM    no
 CONS  yes
 CS    no
 MAP   yes
-DATE  Sun Feb  7 18:31:54 2021
+DATE  Sun Feb  7 20:50:16 2021
 NSEQ  14
 EFFN  1.377441
 CKSUM 313182499

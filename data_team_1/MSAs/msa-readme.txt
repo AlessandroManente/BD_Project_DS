@@ -9,5 +9,5 @@ Naming convention:
 
 MSA_X_Y.fa
 
-X = Name of the method used
+X = Shortname of the method used: "C", "O", "M" for T-Coffee, Clustal-Omega and MUSCLE respectively.
 Y = Try number (NB: must coincide with the respective BLAST search's try number).
