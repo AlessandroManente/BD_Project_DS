@@ -2,37 +2,87 @@ from re import split
 from itertools import groupby
 from operator import itemgetter
 from collections import defaultdict
-import os
+import os, sys
 import pandas as pd
 from Bio import SearchIO
 
 __author__ = 'Enzo Guerrero-Araya (biologoenzo@gmail.com)'
 __version__ = '0.1'
 __date__ = 'July 13, 2016'
-attribs_tblouts = ['accession', 'bias', 'bitscore', 'description', 'cluster_num', 'domain_exp_num',  'domain_included_num', 'domain_obs_num', 'domain_reported_num', 'env_num', 'evalue', 'id', 'overlap_num', 'region_num']
+attribs_tblouts = ['target name', 'accession', 'query name', 'accession', 'E-value', 'score', 'bias', 'E-value', 'score', 'bias', 'exp', 'reg', 'clu', 'ov', 'env', 'dom', 'rep', 'inc', 'description of target']
 attribs_domtblouts = ['target name', 'target accession', 'tlen', 'query name', 'accession', 'qlen',  'E-value', 'score', 'bias', '#', 'of', 'c-Evalue', 'i-Evalue', 'score', 'bias', 'from', 'to', 'from', 'to', 'from', 'to', 'acc', 'description of target']
+cur = os.getcwd()
 
-def read_tblouts(filename):
-    hits = defaultdict(list)
+def splitall(path):
+    allparts = []
+    while 1:
+        parts = os.path.split(path)
+        if parts[0] == path:  # sentinel for absolute paths
+            allparts.insert(0, parts[0])
+            break
+        elif parts[1] == path: # sentinel for relative paths
+            allparts.insert(0, parts[1])
+            break
+        else:
+            path = parts[0]
+            allparts.insert(0, parts[1])
+    return allparts
 
-    with open(filename) as handle:
-        for queryresult in SearchIO.parse(handle, 'hmmer3-tab'):
-            for hit in queryresult.hits:
-                for attrib in attribs_tblouts:
-                    hits[attrib].append(getattr(hit, attrib))
+def my_split(path):
+    splitted = splitall(path)
+    splitted = [x.replace('\\', '') for x in splitted]
 
-    test = pd.DataFrame.from_dict(hits)
+    return splitted
+
+def parse_tblouts():
+    dirs = [cur + '\data_team_1\HMMs\HMM_' + a + '\hmmsearch_out_' + a + '_1.tblout' for a in ['C', 'M', 'O']]
     
-    return test
+    parsed_dfs = []
+
+    for filename in dirs:
+        parsed_dfs.append(read_tblout(filename))
+    
+    return parsed_dfs[0], parsed_dfs[1], parsed_dfs[2]
+
+def parse_domtblouts():
+    dirs = [cur + '\data_team_1\HMMs\HMM_' + a + '\hmmsearch_out_' + a + '_1.domtblout' for a in ['C', 'M', 'O']]
+    parsed_dfs = []
+
+    for filename in dirs:
+        parsed_dfs.append(read_domtblout(filename))
+    
+    return parsed_dfs[0], parsed_dfs[1], parsed_dfs[2]
+
+def read_tblout(filename):
+    if my_split(filename)[-1][:-7] + '_tblout.csv' not in os.listdir('\\'.join(my_split(filename)[:-1])):
+        parser = HMMparser(filename, 'tblouts')
+        parsed = parser.hmmscanParser()
+        parsed_df = pd.DataFrame(columns = attribs_tblouts)
+
+        for parse in parsed:
+            parsed_df = parsed_df.append(dict(zip(attribs_tblouts, parse)), ignore_index=True)
+            
+        parsed_df.to_csv('\\'.join(my_split(filename))[:-7] + '_tblout.csv')
+    
+    else:
+        parsed_df = pd.read_csv('\\'.join(my_split(filename))[:-7] + '_tblout.csv')
+
+    return parsed_df
 
 
-def read_domtblouts(filename):
-    parser = HMMparser(filename)
-    parsed = parser.hmmscanParser()
-    parsed_df = pd.DataFrame(columns = attribs_domtblouts)
+def read_domtblout(filename):
+    if my_split(filename)[-1][:-10] + '_domtblout.csv' not in os.listdir('\\'.join(my_split(filename)[:-1])):
+        parser = HMMparser(filename, 'domtblouts')
+        parsed = parser.hmmscanParser()
+        parsed_df = pd.DataFrame(columns = attribs_domtblouts)
 
-    for parse in parsed:
-        parsed_df = parsed_df.append(dict(zip(attribs_domtblouts, parse)), ignore_index=True)
+        for parse in parsed:
+            parsed_df = parsed_df.append(dict(zip(attribs_domtblouts, parse)), ignore_index=True)
+            
+        parsed_df.to_csv('\\'.join(my_split(filename))[:-10] + '_domtblout.csv')
+    
+    else:
+        parsed_df = pd.read_csv('\\'.join(my_split(filename))[:-10] + '_domtblout.csv')
 
     return parsed_df
 
@@ -49,7 +99,8 @@ class HMMparser(object):
        for bacteria, use E-value < 1e-18 and coverage > 0.35;
        and for fungi, use E-value < 1e-17 and coverage > 0.45."""
 
-    def __init__(self, HMMfile):
+    def __init__(self, HMMfile, type):
+        self.type = type
         self.HMMfile = HMMfile
         try:
             self.data_HMMfile = open(self.HMMfile).read()
@@ -125,7 +176,10 @@ class HMMparser(object):
         for line in self.data_HMMfile.split("\n"):
             if line.startswith("#") or line is "":
                 continue
-            line = split("\s+", line, 22)  # just 22 because the last can contain \s+ characters
+            if self.type == 'domtblouts':
+                line = split("\s+", line, 22)  # just 22 because the last can contain \s+ characters
+            else:
+                line = split("\s+", line, 18)
             matrix.append(line)
         return matrix
 
