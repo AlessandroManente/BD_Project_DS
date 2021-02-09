@@ -4,23 +4,28 @@
 
 A representative sequence of the domain family. Columns are: group, UniProt accession, organism, Pfam identifier, Pfam name, domain position in the corresponding UniProt protein, domain sequence. Group assignments are provided here.
 
+Team 1: Q12723, Cyberlindnera mrakii (Yeast) (Williopsis mrakii), PF03060, Nitronate monooxygenase, 10-372, KTFEVRYPIIQAPMAGASTLELAATVTRLGGIGSIPMGSLSEKCDAIETQLENFDELVGDSGRIVNLNFFAHKEPRSGRADVNEEWLKKYDKIYGKAGIEFDKKELKLLYPSFRSIVDPQHPTVRLLKNLKPKIVSFHFGLPHEAVIESLQASDIKIFVTVTNLQEFQQAYESKLDGVVLQGWEAGGHRGNFKANDVEDGQLKTLDLVSTIVDYIDSASISNPPFIIAAGGIHDDESIKELLQFNIAAVQLGTVWLPSSQATISPEHLKMFQSPKSDTMMTAAISGRNLRTISTPFLRDLHQSSPLASIPDYPLPYDSFKSLANDAKQSGKGPQYSAFLAGSNYHKSWKDTRSTEEIFSILVQ
+
+Team 2: P26010, Homo sapiens (Human), PF00362, Integrin beta subunit VWA domain, 147-393, AEGYPVDLYYLMDLSYSMKDDLERVRQLGHALLVRLQEVTHSVRIGFGSFVDKTVLPFVSTVPSKLRHPCPTRLERCQSPFSFHHVLSLTGDAQAFEREVGRQSVSGNLDSPEGGFDAILQAALCQEQIGWRNVSRLLVFTSDDTFHTAGDGKLGGIFMPSDGHCHLDSNGLYSRSTEFDYPSVGQVAQALSAANIQPIFAVTSAALPVYQELSKLIPKSAVGELSEDSSNVVQLIMDAYNSLSSTV
+
 ## Domain model definition
 
 The objective of the first part of the project is to build a PSSM and HMM model representing the assigned domain. The two models will be generated starting from the assigned input sequence. The accuracy of the models will be evaluated against Pfam annotations as provided in the SwissProt database.
 
 ### Building the models:
 
-1. Define your ground truth by finding all proteins in SwissProt annotated (and not annotated) with the assigned Pfam domain and collect the position of the Pfam domain for all sequences. Domain positions are available here or using the InterPro API. --> **DONE**
-2. Retrieve homologous proteins starting from your input sequence performing a BLAST search against UniProt or UniRef50 or UniRef90\. --> **DONE**
-3. Generate a multiple sequence alignment (MSA) starting from retrieved hits using T-coffee or ClustalOmega or MUSCLE. --> **DONE**
+1. Define your ground truth by finding all proteins in SwissProt annotated (and not annotated) with the assigned Pfam domain and collect the position of the Pfam domain for all sequences. Domain positions are available here or using the InterPro API. --> **DONE:** _solved using bd_addons\interpro_data.py, we have saved all the results into data_team_1\entries\entries.csv_
+2. Retrieve homologous proteins starting from your input sequence performing a BLAST search against UniProt or UniRef50 or UniRef90\. --> **DONE** _solved searching in the database UniProt, not the ref ones_
 
-4. If necessary, edit the MSA with JalView (or with your custom script) to remove noise. --> **DONE**
+3. Generate a multiple sequence alignment (MSA) starting from retrieved hits using T-coffee or ClustalOmega or MUSCLE. --> **DONE** _solved using all the online services mentioned_
 
-5. Build a PSSM model starting from the MSA. --> **DONE**
+4. If necessary, edit the MSA with JalView (or with your custom script) to remove noise. --> **DONE** _actually not done, not necessary (?)_
 
-6. Build a HMM model starting from the MSA. --> **DONE**
+5. Build a PSSM model starting from the MSA. --> **DONE** _script bash, to check with results from website_
 
-7. Find significant hits using HMM-SEARCH and PSI-BLAST against SwissProt. --> **DONE**
+6. Build a HMM model starting from the MSA. --> **DONE** _script generate_hmms_
+
+7. Find significant hits using HMM-SEARCH and PSI-BLAST against SwissProt. --> **DONE** _solved with tools used in 5_
 
 8. Evaluate the ability of matching sequences considering your ground truth. Calculate accuracy, precision, sensitivity, specificity, [MCC](https://en.wikipedia.org/wiki/Matthews_correlation_coefficient#:~:text=The%20MCC%20is%20in%20essence%20a%20correlation%20coefficient,%E2%88%921%20indicates%20total%20disagreement%20between%20prediction%20and%20observation>.), F-score, etc.
 
