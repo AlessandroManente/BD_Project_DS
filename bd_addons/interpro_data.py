@@ -111,8 +111,15 @@ def get_data(url, team):
     metadata, entries = get_df(url, team)
     print('Got data')
 
-    return metadata, entries
+    gt = metadata.copy()
+    gt = gt[['accession']]
+    gt['start'] = entries['entry_protein_locations_fragments_start']
+    gt['end'] = entries['entry_protein_locations_fragments_end']
+    gt['length'] = entries['protein_length']
+    gt.to_csv(cur+'\\data_team_'+str(team)+'\\ground_truth\\ground_truth.csv')
+
+    return metadata, entries, gt
 
 def checkpoint(df_metadata, df_entries, team):
-    df_metadata.to_csv(cur+'\\data_team_'+str(team)+'\\metadata\\metadata_csv')
+    df_metadata.to_csv(cur+'\\data_team_'+str(team)+'\\metadata\\metadata.csv')
     df_entries.to_csv(cur+'\\data_team_'+str(team)+'\\entries\\entries.csv')
