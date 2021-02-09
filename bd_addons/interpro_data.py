@@ -109,7 +109,7 @@ def get_df(url, team):
 
 def get_data(url, team):
     metadata, entries = get_df(url, team)
-    print('Got data')
+    #print('Got data')
 
     gt = metadata.copy()
     gt = gt[['accession']]
