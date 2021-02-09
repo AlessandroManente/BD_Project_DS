@@ -19,4 +19,4 @@ read try
 
 #create PSSM
 
-../../binx/ncbi-blast-2.11.0+/bin/psiblast -db ../../data/msa/uniprot_sprot.fasta -in_msa ../../MSAs/MSA_${msamethod}_${try}.fa -out_ascii_pssm pssm_${msamethod}_${try}.txt
+../../../binx/ncbi-blast-2.11.0+/bin/psiblast -db ../../../data/uniprot_sprot.fasta -in_msa ../MSAs/MSA_${msamethod}_${try}.fa -out_ascii_pssm pssm_${msamethod}_${try}.txt -out out_psiblast_${msamethod}_${try}.txt
