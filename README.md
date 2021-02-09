@@ -10,22 +10,24 @@ The objective of the first part of the project is to build a PSSM and HMM model 
 
 ### Building the models:
 
-1. Define your ground truth by finding all proteins in SwissProt annotated (and not annotated) with the assigned Pfam domain and collect the position of the Pfam domain for all sequences. Domain positions are available here or using the InterPro API. --> **DONE** _bd_addons.interpro_data.py_
+1. Define your ground truth by finding all proteins in SwissProt annotated (and not annotated) with the assigned Pfam domain and collect the position of the Pfam domain for all sequences. Domain positions are available here or using the InterPro API. --> **DONE**
 2. Retrieve homologous proteins starting from your input sequence performing a BLAST search against UniProt or UniRef50 or UniRef90\. --> **DONE**
-3. Generate a multiple sequence alignment (MSA) starting from retrieved hits using T-coffee or ClustalOmega or MUSCLE.--> **DONE**
+3. Generate a multiple sequence alignment (MSA) starting from retrieved hits using T-coffee or ClustalOmega or MUSCLE. --> **DONE**
 
-4. If necessary, edit the MSA with JalView (or with your custom script) to remove noise.--> **DONE**
+4. If necessary, edit the MSA with JalView (or with your custom script) to remove noise. --> **DONE**
 
-5. Build a PSSM model starting from the MSA.--> **DONE**
+5. Build a PSSM model starting from the MSA. --> **DONE**
 
-6. Build a HMM model starting from the MSA.--> **DONE**
+6. Build a HMM model starting from the MSA. --> **DONE**
 
-7. Find significant hits using HMM-SEARCH and PSI-BLAST against SwissProt.
+7. Find significant hits using HMM-SEARCH and PSI-BLAST against SwissProt. --> **DONE**
 
-8. Evaluate the ability of matching sequences considering your ground truth. Calculate accuracy, precision, sensitivity, specificity, MCC, F-score, etc.
+8. Evaluate the ability of matching sequences considering your ground truth. Calculate accuracy, precision, sensitivity, specificity, [MCC](https://en.wikipedia.org/wiki/Matthews_correlation_coefficient#:~:text=The%20MCC%20is%20in%20essence%20a%20correlation%20coefficient,%E2%88%921%20indicates%20total%20disagreement%20between%20prediction%20and%20observation>.), F-score, etc.
 
 9. Evaluate the ability of matching domain position considering your ground truth, i.e. residues overlapping (and non overlapping) with Pfam domains. Calculate accuracy, precision, sensitivity, specificity, MCC, F-score, etc.
+
 10. Consider repeating point 2-4 to improve the performance of your models.
+
 11. Choose the best model.
 
 ## Domain family characterization
@@ -61,15 +63,17 @@ Once the family model is defined (previous step), you will look at functional an
 
 ## Useful Software
 
-- JalView (<http://www.jalview.org>). Multiple sequence alignment viewer.Clustal-Omega. (<http://www.clustal.org/omega/>). Multiple sequence alignment.
-- HMMER (<http://hmmer.org/>). Build HMM models of multiple sequence alignments. Perform HMM/sequence database searches.
-- NCBI-BLAST (ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/). Perform database sequence searches.
-- TM-align (<https://zhanglab.ccmb.med.umich.edu/TM-align/>). Perform pairwise structural alignments.
+- [JalView](http://www.jalview.org). Multiple sequence alignment viewer.[Clustal-Omega](http://www.clustal.org/omega/). Multiple sequence alignment.
+- [HMMER](http://hmmer.org/). Build HMM models of multiple sequence alignments. Perform HMM/sequence database searches.
+- [NCBI-BLAST](ftp://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/). Perform database sequence searches.
+- [TM-align](https://zhanglab.ccmb.med.umich.edu/TM-align/). Perform pairwise structural alignments.
+- [HMM parser](https://github.com/EnzoAndree/HmmPy)
+- [PSSM parser](https://github.com/welhefna/PSSM)
 
 ## Useful databases
 
-- UniProt, <https://www.uniprot.org/>
-- PDB, <https://www.rcsb.org/>
-- InterPro, <https://www.ebi.ac.uk/interpro/>
-- Pfam, <https://pfam.xfam.org/>
-- Gene Ontology, <http://geneontology.org/docs/download-ontology/>
+- [Uniprot](https://www.uniprot.org/)
+- [PDB](https://www.rcsb.org/)
+- [InterPro](https://www.ebi.ac.uk/interpro/)
+- [Pfam](https://pfam.xfam.org/)
+- [Gene Ontology](http://geneontology.org/docs/download-ontology/)
