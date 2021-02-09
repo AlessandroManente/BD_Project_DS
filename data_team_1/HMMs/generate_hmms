@@ -25,6 +25,3 @@ read try
  # Command line commands to search SwissProt, using the created HMM model as query. This commands will output all 3 different formats of output.
 
 ../../../binx/hmmer-3.3.1/src/hmmsearch --tblout ./HMM_${msamethod}/hmmsearch_out_${msamethod}_${try}.tblout --domtblout ./HMM_${msamethod}/hmmsearch_out_${msamethod}_${try}.domtblout ./HMM_${msamethod}/hmm_model_${msamethod}_${try}.hmm ../../../data/uniprot_sprot.fasta > ./HMM_${msamethod}/hmmsearch_out_${msamethod}_${try}.align
-
- 
- 
