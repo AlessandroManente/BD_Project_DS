@@ -121,5 +121,5 @@ def get_data(url, team):
     return metadata, entries, gt
 
 def checkpoint(df_metadata, df_entries, team):
-    df_metadata.to_csv(cur+'\\data_team_'+str(team)+'\\metadata\\metadata.csv')
-    df_entries.to_csv(cur+'\\data_team_'+str(team)+'\\entries\\entries.csv')
+    df_metadata.to_csv(cur+'\\data_team_'+str(team)+'\\ground_truth\\metadata\\metadata.csv')
+    df_entries.to_csv(cur+'\\data_team_'+str(team)+'\\ground_truth\\entries\\entries.csv')
