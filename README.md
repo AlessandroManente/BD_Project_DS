@@ -27,7 +27,7 @@ The objective of the first part of the project is to build a PSSM and HMM model 
 
 7. Find significant hits using HMM-SEARCH and PSI-BLAST against SwissProt. --> **DONE** _solved with tools used in 5_
 
-8. Evaluate the ability of matching sequences considering your ground truth. Calculate accuracy, precision, sensitivity, specificity, [MCC](https://en.wikipedia.org/wiki/Matthews_correlation_coefficient#:~:text=The%20MCC%20is%20in%20essence%20a%20correlation%20coefficient,%E2%88%921%20indicates%20total%20disagreement%20between%20prediction%20and%20observation>.), F-score, etc.
+8. Evaluate the ability of matching sequences considering your ground truth. Calculate accuracy, precision, sensitivity, specificity, [MCC](https://en.wikipedia.org/wiki/Matthews_correlation_coefficient#:~:text=The%20MCC%20is%20in%20essence%20a%20correlation%20coefficient,%E2%88%921%20indicates%20total%20disagreement%20between%20prediction%20and%20observation>.), F-score, balanced accuracy.
 
 9. Evaluate the ability of matching domain position considering your ground truth, i.e. residues overlapping (and non overlapping) with Pfam domains. Calculate accuracy, precision, sensitivity, specificity, MCC, F-score, etc.
 
