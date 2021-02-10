@@ -10,7 +10,8 @@ MSAs are performed on the following web services
 
 Naming convention:
 
-MSA_X_Y.fa, where:
+MSA_X_Y_Z.fa, where:
 
 - X = Shortname of the method used: "C", "O", "M" for T-Coffee, Clustal-Omega and MUSCLE respectively.
 - Y = Try number (NB: must coincide with the respective BLAST search's try number).
+- Database = (swissprot, uniref90, uniref50, uniref100)
