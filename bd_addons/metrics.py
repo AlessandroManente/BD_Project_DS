@@ -1,6 +1,7 @@
 from Bio import SeqIO, SearchIO
 import pandas as pd
 import os
+import numpy as np
 
 cur = os.getcwd()
 path_swiss_prot = cur + '\\data_team_1\\swiss_prot\\uniprot_sprot.fasta'
@@ -37,4 +38,37 @@ def psiblast_parser():
             hits_dict.setdefault("bitscore",[]).append(rec.hsps[0].bitscore)
         
     hits_df = pd.DataFrame.from_dict(hits_dict)
-    pass
+    
+    return hits_df
+
+
+def metrics_sequences(df, gt):
+    gt_acc = gt.accession.to_list()
+    swissprot_df = swiss_prot_parser()
+
+    true_positives = df['ids'].apply(lambda x: split('-', x.replace('|', '-'))[1]).apply(lambda x: 1 if x in gt_acc else 0).sum()
+    true_negatives = len(swissprot_df) - len(df)
+    false_positives = len(df) - true_positives
+    false_negatives = df['id'].apply(lambda x: split('-', x.replace('|', '-'))[1]).apply(lambda x: 1 if x in gt_acc else 0).sum() - true_positives
+    
+    accuracy = (true_positives + true_negatives) / (true_positives + true_negatives + false_positives + false_negatives)
+    precision = true_positives / (true_positives + false_positives)
+    recall = true_positives / (true_positives + false_negatives)
+    balanced_accuracy = (recall + (true_negatives / (true_negatives + false_positives))) / 2
+    mcc = ((true_positives * true_negatives) - (false_positives * false_negatives)) / np.sqrt((true_positives + false_positives) * (true_positives + false_negatives) * (true_negatives + false_positives) * (true_negatives + false_negatives))
+    f1_score = (2 * true_positives) / (2 * true_positives + false_positives + false_negatives)
+
+    return [accuracy, precision, recall, balanced_accuracy, mcc, f1_score]
+
+
+def metrics_8(dfs_list, gt):
+    metrics = []
+    index_metrics = ['df_psi_C', 'df_psi_M', 'df_psi_O', 'df_hmm_C', 'df_hmm_M', 'df_hmm_O']
+    columns_metrics = ['accuracy', 'precision', 'recall', 'balanced_accuracy', 'mcc', 'f1_score']
+
+    for df in dfs_list:
+        metrics.append(df, gt)
+    
+    metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
+
+    return metrics_df

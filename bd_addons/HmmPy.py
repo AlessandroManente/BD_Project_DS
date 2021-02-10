@@ -9,8 +9,8 @@ from Bio import SearchIO
 __author__ = 'Enzo Guerrero-Araya (biologoenzo@gmail.com)'
 __version__ = '0.1'
 __date__ = 'July 13, 2016'
-attribs_tblouts = ['target name', 'accession', 'query name', 'accession_2', 'E-value', 'score', 'bias', 'E-value_2', 'score_2', 'bias_2', 'exp', 'reg', 'clu', 'ov', 'env', 'dom', 'rep', 'inc', 'description of target']
-attribs_domtblouts = ['target name', 'target accession', 'tlen', 'query name', 'accession', 'qlen',  'E-value', 'score', 'bias', '#', 'of', 'c-Evalue', 'i-Evalue', 'score_2', 'bias_2', 'from', 'to', 'from_2', 'to_2', 'from_3', 'to_3', 'acc', 'description of target']
+attribs_tblouts = ['ids', 'accession', 'query name', 'accession_2', 'E-value', 'score', 'bias', 'E-value_2', 'score_2', 'bias_2', 'exp', 'reg', 'clu', 'ov', 'env', 'dom', 'rep', 'inc', 'description of target']
+attribs_domtblouts = ['ids', 'target accession', 'tlen', 'query name', 'accession', 'qlen',  'E-value', 'score', 'bias', '#', 'of', 'c-Evalue', 'i-Evalue', 'score_2', 'bias_2', 'from', 'to', 'from_2', 'to_2', 'from_3', 'to_3', 'acc', 'description of target']
 cur = os.getcwd()
 
 def splitall(path):
