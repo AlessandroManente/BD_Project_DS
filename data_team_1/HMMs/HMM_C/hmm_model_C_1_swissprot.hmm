@@ -1,5 +1,5 @@
 HMMER3/f [3.3.1 | Jul 2020]
-NAME  MSA_C_1
+NAME  MSA_C_1_swissprot
 LENG  354
 ALPH  amino
 RF    no
@@ -7,7 +7,7 @@ MM    no
 CONS  yes
 CS    no
 MAP   yes
-DATE  Sun Feb  7 20:48:43 2021
+DATE  Wed Feb 10 03:58:23 2021
 NSEQ  14
 EFFN  1.377441
 CKSUM 2497813408
