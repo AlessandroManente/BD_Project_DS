@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import numpy as np
 from bd_addons.HmmPy import *
+import time
 
 cur = os.getcwd()
 path_swiss_prot = cur + '\\data_team_1\\swiss_prot\\uniprot_sprot.fasta'
@@ -67,12 +68,10 @@ def metrics_sequences(df, gt):
     df_ids = df.ids.to_list()
     swissprot_df = swiss_prot_parser()
     
-
-    true_positives = df['ids'].apply(lambda x: 1 if x in gt_acc else 0).sum() # intersection between gt.ids and df.ids
-    true_negatives = swissprot_df['ids'].apply(lambda x: 1 if (x not in gt_acc and x not in df_ids) else 0).sum() # rows in swissprot_df but not in gt.ids and df.ids
+    true_positives = (df['ids'].isin(gt_acc)).sum() # intersection between gt.ids and df.ids
+    true_negatives = ((~swissprot_df['ids'].isin(gt_acc)) & (~swissprot_df['ids'].isin(df_ids))).sum() # rows in swissprot_df but not in gt.ids and df.ids
     false_positives = len(df) - true_positives
     false_negatives = len(swissprot_df) - len(df) - true_negatives#swissprot_df['ids'].apply(lambda x: 1 if x not in df_ids else 0).sum() - true_negatives
-    
     
     accuracy = (true_positives + true_negatives) / (true_positives + true_negatives + false_positives + false_negatives)
     
