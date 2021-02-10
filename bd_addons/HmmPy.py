@@ -83,17 +83,17 @@ def parse_hmms():
     dirs_to_parse = [cur + '\\data_team_1\\HMMs\\HMM_' + a + '\\to_parse' for a in ['C', 'M', 'O']]
     dirs_parsed = [cur + '\\data_team_1\\HMMs\\HMM_' + a + '\\parsed' for a in ['C', 'M', 'O']]
     
-    parsed_dfs_tblout = []
-    parsed_dfs_domtblout = []
+    parsed_dfs_tblout = {}
+    parsed_dfs_domtblout = {}
 
     for i, dir in enumerate(dirs_to_parse):
         files = os.listdir(dir)
         for filename in files:
             filename = filename.split('.')
             if filename[1] == 'tblout':
-                parsed_dfs_tblout.append(read_tblout(dir + '\\', filename[0], filename[1], dirs_parsed[i]))
+                parsed_dfs_tblout['.'.join(filename)] = read_tblout(dir + '\\', filename[0], filename[1], dirs_parsed[i])
             else:
-                parsed_dfs_domtblout.append(read_domtblout(dir + '\\', filename[0], filename[1], dirs_parsed[i]))
+                parsed_dfs_domtblout['.'.join(filename)] = read_domtblout(dir + '\\', filename[0], filename[1], dirs_parsed[i])
     
     return parsed_dfs_tblout, parsed_dfs_domtblout
 
@@ -134,6 +134,17 @@ def read_domtblout(dir_to_parse, filename, extension, dir_parsed):
             parsed_df = parsed_df.append(dict(zip(attribs_domtblouts, parse)), ignore_index=True)
         
         parsed_df['ids'] = parsed_df['target name'].apply(lambda x: x.replace('|', '-').split('-')[1])
+        
+        parsed_df['target_len'] = parsed_df['tlen']
+        parsed_df['query_len'] = parsed_df['qlen']
+        parsed_df['score_sequence'] = parsed_df['score']
+        parsed_df['score_domain'] = parsed_df['score_2']
+        parsed_df['domain_number'] = parsed_df['#']
+        parsed_df['from_ali_coord'] = parsed_df['from_2']
+        parsed_df['to_ali_coord'] = parsed_df['to_2']
+        parsed_df['description_of_target'] = parsed_df['description of target']
+        parsed_df = parsed_df[['ids', 'target_len', 'query_len', 'E-value', 'score_sequence', 'domain_number', 'of', 'i-Evalue', 'score_domain', 'from_ali_coord', 'to_ali_coord', 'acc', 'description_of_target']]
+        
         parsed_df.to_csv(dir_parsed + '\\' + filename + '_domtblout.csv')
     
     else:

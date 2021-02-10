@@ -2,6 +2,7 @@ from Bio import SeqIO, SearchIO
 import pandas as pd
 import os
 import numpy as np
+from bd_addons.HmmPy import *
 
 cur = os.getcwd()
 path_swiss_prot = cur + '\\data_team_1\\swiss_prot\\uniprot_sprot.fasta'
@@ -27,14 +28,14 @@ def parse_psiblast():
     dirs_to_parse = [cur + '\\data_team_1\\PSSMs\\PSSM_' + a + '\\to_parse' for a in ['C', 'M', 'O']]
     dirs_parsed = [cur + '\\data_team_1\\PSSMs\\PSSM_' + a + '\\parsed' for a in ['C', 'M', 'O']]
     
-    parsed_dfs = []
+    parsed_dfs = {}
 
     for i, dir in enumerate(dirs_to_parse):
         files = os.listdir(dir)
         for filename in files:
             filename = filename.split('.')
             
-            parsed_dfs.append(psiblast_parser(dir + '\\', filename[0], filename[1], dirs_parsed[i]))
+            parsed_dfs['.'.join(filename)] = psiblast_parser(dir + '\\', filename[0], filename[1], dirs_parsed[i])
     
     return parsed_dfs
 
@@ -62,6 +63,7 @@ def psiblast_parser(dir_to_parse, filename, extension, dir_parsed):
 
 def metrics_sequences(df, gt):
     gt_acc = gt.accession.to_list()
+    df = df.drop_duplicates(subset=['ids'])
     df_ids = df.ids.to_list()
     swissprot_df = swiss_prot_parser()
     
@@ -89,14 +91,21 @@ def metrics_sequences(df, gt):
     return [accuracy, precision, recall, specificity, balanced_accuracy, mcc, f1_score]
 
 
-def metrics_8(dfs_list, gt):
-    metrics = []
-    index_metrics = ['df_psi_C', 'df_psi_M', 'df_psi_O', 'df_hmm_C', 'df_hmm_M', 'df_hmm_O']
-    columns_metrics = ['accuracy', 'precision', 'recall', 'balanced_accuracy', 'mcc', 'f1_score']
+def metrics_8(gt):
+    parsed_tblouts, parsed_domtblouts = parse_hmms()
+    parsed_psiblast = parse_psiblast()
 
-    for df in dfs_list:
-        metrics.append(df, gt)
+    metrics = []
+    index_metrics = list(parsed_domtblouts.keys()) + list(parsed_psiblast.keys())
+    columns_metrics = ['accuracy', 'precision', 'recall', 'specificity', 'balanced_accuracy', 'mcc', 'f1_score']
+
+    for df in parsed_domtblouts.keys():
+        metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
+    
+    for df in parsed_psiblast.keys():
+        metrics.append(metrics_sequences(parsed_psiblast[df], gt))
     
     metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
+    metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv')
 
-    return metrics_df
+    return metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
