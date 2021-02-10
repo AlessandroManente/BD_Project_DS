@@ -1,9 +1,14 @@
 from Bio import SeqIO, SearchIO
 import pandas as pd
 import os
-import numpy as np
 from bd_addons.HmmPy import *
 import time
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import random
+sns.set_theme()
+sns.set_style("whitegrid")
 
 cur = os.getcwd()
 path_swiss_prot = cur + '\\data_team_1\\swiss_prot\\uniprot_sprot.fasta'
@@ -108,3 +113,17 @@ def metrics_8(gt):
     metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv')
 
     return metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
+
+
+def plot_metrics_8(metrics_df):
+    col= list(metrics_df.columns)
+    x = np.arange(metrics_df.shape[0])
+    c = np.random.rand(metrics_df.shape[0],3)
+    for i in col:
+        fig, ax = plt.subplots(figsize=(20,10))
+        ax.bar(metrics_df.index,list(metrics_df[i]), color = c)
+        ax.set_xticks(x)
+        ax.set_xticklabels(metrics_df.index, rotation=65)
+        ax.set_ylim((0,1))
+        plt.title(i)
+        #fig.savefig(i+".png")
