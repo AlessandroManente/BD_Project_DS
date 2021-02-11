@@ -1,3 +1,6 @@
 # Swiss-Prot db
 data_team_1/swiss_prot/uniprot_sprot.fasta
 data_team_1/swiss_prot/uniprot_sprot.csv
+
+# SIFTS PDB chains of Uniprot
+data_team_1/_part_2/original_datasets/pdb_chain_uniprot.tsv
