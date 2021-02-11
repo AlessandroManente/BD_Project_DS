@@ -106,7 +106,13 @@ def metrics_sequences(df, gt):
     return [accuracy, precision, recall, specificity, balanced_accuracy, mcc, f1_score]
 
 
-def metrics_8(gt, smart_update = True, force_recompute = False):
+def metrics_8(gt, smart_update = True):
+    """ 
+    Compute all the various metrics for our models (point 8 of the project)
+    - gt: dataframe containing ground truth proteins;
+    - smart_update: if True, then the function doesn't recompute from scratch all the statistics,
+    if those are already found in the metrics8.csv file.
+    """
     parsed_tblouts, parsed_domtblouts = parse_hmms()
     parsed_psiblast = parse_psiblast()
 
@@ -117,47 +123,41 @@ def metrics_8(gt, smart_update = True, force_recompute = False):
     
     if 'metrics_8.csv' in os.listdir(cur + '\\data_team_1\\metrics'):
         old_metrics_df = pd.read_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv', index_col=0)
-
-        # Check if we have already all the statistics that we need in the the metrics8.csv
-        if (old_metrics_df.index.to_list() == index_metrics) and not force_recompute:
-            return old_metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
-        
-        else:
-            for df in parsed_domtblouts.keys():
-                # recompute metrics only if the key wasnt already in the old csv!
-                if smart_update:
-                    if (df not in old_metrics_df.index.to_list()):
-                        print("Computing metrics for: {}".format(df))
-                        metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
-                else:
-                    print("Computing metrics for: {}".format(df))
-                    metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
-
-            
-            for df in parsed_psiblast.keys():
-                # recompute metrics only if the key wasnt already in the old csv!
-                if (df not in old_metrics_df.index.to_list()) and  smart_update:
-                    metrics.append(metrics_sequences(parsed_psiblast[df], gt))
-            
-            metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
-            metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv')
-
-            return metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
-    
     else:
-        for df in parsed_domtblouts.keys():
+        old_metrics_df = None
+
+    for df in parsed_domtblouts.keys():
+        if smart_update and old_metrics_df != None:
+            #If smartupdate = True, then compute only new entries
+            if (df not in old_metrics_df.index.to_list()):
+                print("Computing metrics for: {}".format(df))
+                metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
+            else:
+                print("Recycling metrics for {}".format(df))
+                metrics.append(list(old_metrics_df.loc[df].values))
+        else:
+            # if smartupdate = False, we recompute from scratch all the metrics
             print("Computing metrics for: {}".format(df))
             metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
-        
-        # qua c'era l'indentazione sbagliata?
-        for df in parsed_psiblast.keys():
+
+    for df in parsed_psiblast.keys():
+        if smart_update and old_metrics_df != None:
+            #If smartupdate = True, then compute only new entries
+            if (df not in old_metrics_df.index.to_list()):
+                print("Computing metrics for: {}".format(df))
+                metrics.append(metrics_sequences(parsed_psiblast[df], gt))
+            else:
+                print("Recycling metrics for {}".format(df))
+                metrics.append(list(old_metrics_df.loc[df].values))
+        else:
+            # if smartupdate = False, we recompute from scratch all the metrics
             print("Computing metrics for: {}".format(df))
             metrics.append(metrics_sequences(parsed_psiblast[df], gt))
-            
-        metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
-        metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv')
+        
+    metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
+    metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv')
 
-        return metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
+    return metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
 
 
 def dfs_to_dicts(parsed_domtblouts, parsed_psiblast):
