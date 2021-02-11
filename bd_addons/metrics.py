@@ -106,7 +106,7 @@ def metrics_sequences(df, gt):
     return [accuracy, precision, recall, specificity, balanced_accuracy, mcc, f1_score]
 
 
-def metrics_8(gt):
+def metrics_8(gt, smart_update = True, force_recompute = False):
     parsed_tblouts, parsed_domtblouts = parse_hmms()
     parsed_psiblast = parse_psiblast()
 
@@ -114,18 +114,30 @@ def metrics_8(gt):
     index_metrics = list(parsed_domtblouts.keys()) + list(parsed_psiblast.keys())
     columns_metrics = ['accuracy', 'precision', 'recall', 'specificity', 'balanced_accuracy', 'mcc', 'f1_score']
     
+    
     if 'metrics_8.csv' in os.listdir(cur + '\\data_team_1\\metrics'):
         old_metrics_df = pd.read_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv', index_col=0)
 
-        if old_metrics_df.index.to_list() == index_metrics:
+        # Check if we have already all the statistics that we need in the the metrics8.csv
+        if (old_metrics_df.index.to_list() == index_metrics) and not force_recompute:
             return old_metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
         
         else:
             for df in parsed_domtblouts.keys():
-                metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
+                # recompute metrics only if the key wasnt already in the old csv!
+                if smart_update:
+                    if (df not in old_metrics_df.index.to_list()):
+                        print("Computing metrics for: {}".format(df))
+                        metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
+                else:
+                    print("Computing metrics for: {}".format(df))
+                    metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
+
             
             for df in parsed_psiblast.keys():
-                metrics.append(metrics_sequences(parsed_psiblast[df], gt))
+                # recompute metrics only if the key wasnt already in the old csv!
+                if (df not in old_metrics_df.index.to_list()) and  smart_update:
+                    metrics.append(metrics_sequences(parsed_psiblast[df], gt))
             
             metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
             metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv')
@@ -134,15 +146,18 @@ def metrics_8(gt):
     
     else:
         for df in parsed_domtblouts.keys():
+            print("Computing metrics for: {}".format(df))
             metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
+        
+        # qua c'era l'indentazione sbagliata?
+        for df in parsed_psiblast.keys():
+            print("Computing metrics for: {}".format(df))
+            metrics.append(metrics_sequences(parsed_psiblast[df], gt))
             
-            for df in parsed_psiblast.keys():
-                metrics.append(metrics_sequences(parsed_psiblast[df], gt))
-            
-            metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
-            metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv')
+        metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
+        metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv')
 
-            return metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
+        return metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
 
 
 def dfs_to_dicts(parsed_domtblouts, parsed_psiblast):

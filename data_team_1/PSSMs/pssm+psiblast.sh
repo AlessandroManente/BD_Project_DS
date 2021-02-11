@@ -28,6 +28,6 @@ read iterations
 
 
 #create PSSM model
-../../../binx/ncbi-blast-2.11.0+/bin/psiblast -db ../../../data/msa/uniprot_sprot.fasta -in_msa ../MSAs/MSA_${msamethod}_${try}_${db}.fa -out_ascii_pssm ascii_pssm_${msamethod}_${try}_${db}.txt -out_pssm pssm_${msamethod}_${try}_${db}.pssm
+../../../binx/ncbi-blast-2.11.0+/bin/psiblast -db ../../../data/msa/uniprot_sprot.fasta -in_msa ../MSAs/MSA_${msamethod}_${try}_${db}.fa -out_ascii_pssm ./ascii_pssm_${msamethod}_${try}_${db}.txt -out_pssm ./pssm_${msamethod}_${try}_${db}.pssm
 # use PSSM model to make a psiblast query
-../../../binx/ncbi-blast-2.11.0+/bin/psiblast -in_pssm pssm_${msamethod}_${try}_${db}.pssm -db ../../../data/msa/uniprot_sprot.fasta -outfmt 5 -num_iterations ${iterations} -evalue 0.01 > ./out_psiblast_${msamethod}_${try}_${db}_${iterations}iterations.xml
+../../../binx/ncbi-blast-2.11.0+/bin/psiblast -in_pssm ./pssm_${msamethod}_${try}_${db}.pssm -db ../../../data/msa/uniprot_sprot.fasta -outfmt 5 -num_iterations ${iterations} -evalue 0.01 > ./out_psiblast_${msamethod}_${try}_${db}_${iterations}iterations.xml
