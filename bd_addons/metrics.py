@@ -108,7 +108,7 @@ def metrics_sequences(df, gt):
     return [accuracy, precision, recall, specificity, balanced_accuracy, mcc, f1_score]
 
 
-def metrics_8(gt, smart_update = True):
+def metrics_8(gt, h_threshold = False, hi_threshold = False, p_threshold = False, smart_update = True):
     """ 
     Compute all the various metrics for our models (point 8 of the project)
     - gt: dataframe containing ground truth proteins;
@@ -122,13 +122,33 @@ def metrics_8(gt, smart_update = True):
     index_metrics = list(parsed_domtblouts.keys()) + list(parsed_psiblast.keys())
     columns_metrics = ['accuracy', 'precision', 'recall', 'specificity', 'balanced_accuracy', 'mcc', 'f1_score']
     
+    if h_threshold < 1 and h_threshold != False:
+        h_threshold_name = str(h_threshold).split('.')[1]
+    else:
+        h_threshold_name = h_threshold
     
-    if 'metrics_8.csv' in os.listdir(cur + '\\data_team_1\\metrics'):
-        old_metrics_df = pd.read_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv', index_col=0)
+    if hi_threshold < 1 and hi_threshold != False:
+        hi_threshold_name = str(hi_threshold).split('.')[1]
+    else:
+        hi_threshold_name = hi_threshold
+
+    if p_threshold < 1 and p_threshold != False:
+        p_threshold_name = str(p_threshold).split('.')[1]
+    else:
+        p_threshold_name = p_threshold
+    
+    if 'metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name) in os.listdir(cur + '\\data_team_1\\metrics'):
+        old_metrics_df = pd.read_csv(cur + '\\data_team_1\\metrics\\metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name), index_col=0)
     else:
         old_metrics_df = pd.DataFrame()
 
     for df in parsed_domtblouts.keys():
+        if h_threshold:
+            parsed_domtblouts[df] = parsed_domtblouts[df][parsed_domtblouts[df]['E-value'] < h_threshold]
+        
+        if hi_threshold:
+            parsed_domtblouts[df] = parsed_domtblouts[df][parsed_domtblouts[df]['i-Evalue'] < hi_threshold]
+            
         if smart_update and not old_metrics_df.empty:
             #If smartupdate = True, then compute only new entries
             if (df not in old_metrics_df.index.to_list()):
@@ -143,6 +163,9 @@ def metrics_8(gt, smart_update = True):
             metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
 
     for df in parsed_psiblast.keys():
+        if p_threshold:
+            parsed_psiblast[df] = parsed_psiblast[df][parsed_psiblast[df]['e_value'].astype(dtype='float64') < p_threshold]
+            
         if smart_update and not old_metrics_df.empty:
             #If smartupdate = True, then compute only new entries
             if (df not in old_metrics_df.index.to_list()):
@@ -157,7 +180,8 @@ def metrics_8(gt, smart_update = True):
             metrics.append(metrics_sequences(parsed_psiblast[df], gt))
         
     metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
-    metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv')
+
+    metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name))
 
     return metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
 
@@ -306,77 +330,89 @@ def compute_con_matrix_9(parsed_domtblouts, parsed_psiblast, gt):
     return conf_df
 
 
-def metrics_9(parsed_domtblouts, parsed_psiblast, gt):
-    conf_df = compute_con_matrix_9(parsed_domtblouts, parsed_psiblast, gt)
+def metrics_computation(df):
+    metrics_list = []
 
+    for i, row in df.iterrows():
+        true_positives = row['true_positives']
+        true_negatives = row['true_negatives']
+        false_positives = row['false_positives']
+        false_negatives = row['false_negatives']
+
+        accuracy = (true_positives + true_negatives) / (true_positives + true_negatives + false_positives + false_negatives)
+    
+        precision = true_positives / (true_positives + false_positives)
+
+        recall = true_positives / (true_positives + false_negatives)
+
+        specificity = true_negatives / (true_negatives + false_positives)
+
+        balanced_accuracy = (recall + specificity) / 2
+
+        mcc = ((true_positives * true_negatives) - (false_positives * false_negatives)) / (np.sqrt((true_positives + false_positives)) * np.sqrt((true_positives + false_negatives)) * np.sqrt((true_negatives + false_positives)) * np.sqrt((true_negatives + false_negatives)))
+
+        f1_score = (2 * true_positives) / (2 * true_positives + false_positives + false_negatives)
+
+        metrics_list.append([accuracy, precision, recall, specificity, balanced_accuracy, mcc, f1_score])
+    
+    return metrics_list
+
+
+def metrics_9(parsed_domtblouts, parsed_psiblast, gt, h_threshold = False, hi_threshold = False, p_threshold = False):
     index_metrics = list(parsed_domtblouts.keys()) + list(parsed_psiblast.keys())
     columns_metrics = ['accuracy', 'precision', 'recall', 'specificity', 'balanced_accuracy', 'mcc', 'f1_score']
 
     metrics_list = []
 
-    # at the beginning: if file already there and it is not to be modified -> read it instead of computing it
-    if 'metrics_9.csv' in os.listdir(cur + '\\data_team_1\\metrics'):
-        old_metrics_df = pd.read_csv(cur + '\\data_team_1\\metrics\\metrics_9.csv', index_col=0)
+    if h_threshold < 1 and h_threshold != False:
+        h_threshold_name = str(h_threshold).split('.')[1]
+    else:
+        h_threshold_name = h_threshold
+    
+    if hi_threshold < 1 and hi_threshold != False:
+        hi_threshold_name = str(hi_threshold).split('.')[1]
+    else:
+        hi_threshold_name = hi_threshold
 
+    if p_threshold < 1 and p_threshold != False:
+        p_threshold_name = str(p_threshold).split('.')[1]
+    else:
+        p_threshold_name = p_threshold
+    
+    for df in parsed_domtblouts.keys():
+        if h_threshold:
+            parsed_domtblouts[df] = parsed_domtblouts[df][parsed_domtblouts[df]['E-value'] < h_threshold]
+        
+        if hi_threshold:
+            parsed_domtblouts[df] = parsed_domtblouts[df][parsed_domtblouts[df]['E-value'] < hi_threshold]
+    
+    for df in parsed_psiblast.keys():
+        if p_threshold:
+            parsed_psiblast[df] = parsed_psiblast[df][parsed_psiblast[df]['e_value'].astype(dtype='float64') < p_threshold]
+    
+    conf_df = compute_con_matrix_9(parsed_domtblouts, parsed_psiblast, gt)
+
+    # at the beginning: if file already there and it is not to be modified -> read it instead of computing it
+    if 'metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name) in os.listdir(cur + '\\data_team_1\\metrics'):
+        old_metrics_df = pd.read_csv(cur + '\\data_team_1\\metrics\\metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name), index_col=0)
+        
         if old_metrics_df.index.to_list() == index_metrics:
             return old_metrics_df, conf_df
-        
+    
         # computation metrics for each df
         else:
-            for i, row in conf_df.iterrows():
-                true_positives = row['true_positives']
-                true_negatives = row['true_negatives']
-                false_positives = row['false_positives']
-                false_negatives = row['false_negatives']
-
-                accuracy = (true_positives + true_negatives) / (true_positives + true_negatives + false_positives + false_negatives)
-            
-                precision = true_positives / (true_positives + false_positives)
-
-                recall = true_positives / (true_positives + false_negatives)
-
-                specificity = true_negatives / (true_negatives + false_positives)
-
-                balanced_accuracy = (recall + specificity) / 2
-
-                mcc = ((true_positives * true_negatives) - (false_positives * false_negatives)) / (np.sqrt((true_positives + false_positives)) * np.sqrt((true_positives + false_negatives)) * np.sqrt((true_negatives + false_positives)) * np.sqrt((true_negatives + false_negatives)))
-
-                f1_score = (2 * true_positives) / (2 * true_positives + false_positives + false_negatives)
-
-                metrics_list.append([accuracy, precision, recall, specificity, balanced_accuracy, mcc, f1_score])
-            
+            metrics_list = metrics_computation(conf_df)
             metrics_df = pd.DataFrame(metrics_list, index=conf_df.index, columns=columns_metrics)
             
-            metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_9.csv')
+            metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name))
 
             return metrics_df, conf_df
     
     else:
-        for i, row in conf_df.iterrows():
-            true_positives = row['true_positives']
-            true_negatives = row['true_negatives']
-            false_positives = row['false_positives']
-            false_negatives = row['false_negatives']
-
-            accuracy = (true_positives + true_negatives) / (true_positives + true_negatives + false_positives + false_negatives)
-        
-            precision = true_positives / (true_positives + false_positives)
-
-            recall = true_positives / (true_positives + false_negatives)
-
-            specificity = true_negatives / (true_negatives + false_positives)
-
-            balanced_accuracy = (recall + specificity) / 2
-
-            mcc = ((true_positives * true_negatives) - (false_positives * false_negatives)) / (np.sqrt((true_positives + false_positives)) * np.sqrt((true_positives + false_negatives)) * np.sqrt((true_negatives + false_positives)) * np.sqrt((true_negatives + false_negatives)))
-
-            f1_score = (2 * true_positives) / (2 * true_positives + false_positives + false_negatives)
-
-            metrics_list.append([accuracy, precision, recall, specificity, balanced_accuracy, mcc, f1_score])
-        
+        metrics_list = metrics_computation(conf_df)
         metrics_df = pd.DataFrame(metrics_list, index=conf_df.index, columns=columns_metrics)
         
-        metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_9.csv')
+        metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name))
 
         return metrics_df, conf_df
 
