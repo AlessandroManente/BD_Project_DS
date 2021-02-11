@@ -124,10 +124,10 @@ def metrics_8(gt, smart_update = True):
     if 'metrics_8.csv' in os.listdir(cur + '\\data_team_1\\metrics'):
         old_metrics_df = pd.read_csv(cur + '\\data_team_1\\metrics\\metrics_8.csv', index_col=0)
     else:
-        old_metrics_df = None
+        old_metrics_df = pd.DataFrame()
 
     for df in parsed_domtblouts.keys():
-        if smart_update and old_metrics_df != None:
+        if smart_update and not old_metrics_df.empty:
             #If smartupdate = True, then compute only new entries
             if (df not in old_metrics_df.index.to_list()):
                 print("Computing metrics for: {}".format(df))
@@ -141,7 +141,7 @@ def metrics_8(gt, smart_update = True):
             metrics.append(metrics_sequences(parsed_domtblouts[df], gt))
 
     for df in parsed_psiblast.keys():
-        if smart_update and old_metrics_df != None:
+        if smart_update and not old_metrics_df.empty:
             #If smartupdate = True, then compute only new entries
             if (df not in old_metrics_df.index.to_list()):
                 print("Computing metrics for: {}".format(df))
