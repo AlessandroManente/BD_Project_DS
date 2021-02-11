@@ -89,7 +89,7 @@ def parse_hmms():
     for i, dir in enumerate(dirs_to_parse):
         files = os.listdir(dir)
         for filename in files:
-            print("Parsing {} ...".format(filename))
+            # print("Parsing {} ...".format(filename))
             filename = filename.split('.')
             if filename[1] == 'tblout':
                 parsed_dfs_tblout['.'.join(filename)] = read_tblout(dir + '\\', filename[0], filename[1], dirs_parsed[i])
