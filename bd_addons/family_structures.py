@@ -40,41 +40,58 @@ def parse_tmalign_out(filename):
 
     return float(RMSD), float(TMSCORE)
 
-def create_rmsd_matrix():
+def create_rmsd_matrix(best_model):
     """
     Takes all the files inside the temp folder, reads the rmsd values from them, 
     and stores them into a matrix"""
-    rmsd_dict = {}
 
-    dir_to_parse = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\temp"
-    files = os.listdir(dir_to_parse)
-    for filename in files:
-        ls = filename.split("_")
-        o1 = ls[0].split(".")[0]
-        o2 = ls[1].split(".")[0]
-        rmsd_dict.setdefault(o1, {})
-        rmsd_dict[o1][o2], _ = parse_tmalign_out(filename) 
+    model_path = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\pdbs_{}".format(best_model)
 
-    rmsd_df = pd.DataFrame.from_dict(rmsd_dict)
-    return rmsd_df
+    if 'rmsds_{}.csv'.format(best_model) in os.listdir(model_path):
+        rmsds_df = pd.read_csv(model_path + '\\' + 'rmsds_' + best_model + '.csv', index_col=0)
+        return rmsds_df
 
-def create_tmscores_matrix():
+    else:
+        rmsd_dict = {}
+
+        dir_to_parse = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\temp"
+        files = os.listdir(dir_to_parse)
+        for filename in files:
+            ls = filename.split("_")
+            o1 = ls[0].split(".")[0]
+            o2 = ls[1].split(".")[0]
+            rmsd_dict.setdefault(o1, {})
+            rmsd_dict[o1][o2], _ = parse_tmalign_out(filename) 
+
+        rmsd_df = pd.DataFrame.from_dict(rmsd_dict)
+        return rmsd_df
+
+def create_tmscores_matrix(best_model):
     """
     Takes all the files inside the temp folder, reads the tmscore values from them, 
     and stores them into a matrix"""
-    tmscore_dict = {}
 
-    dir_to_parse = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\temp"
-    files = os.listdir(dir_to_parse)
-    for filename in files:
-        ls = filename.split("_")
-        o1 = ls[0].split(".")[0]
-        o2 = ls[1].split(".")[0]
-        tmscore_dict.setdefault(o1, {})
-        _, tmscore_dict[o1][o2] = parse_tmalign_out(filename) 
+    model_path = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\pdbs_{}".format(best_model)
 
-    tmscore_df = pd.DataFrame.from_dict(tmscore_dict)
-    return tmscore_df
+    if 'tmscores_{}.csv'.format(best_model) in os.listdir(model_path):
+        tmscore_df = pd.read_csv(model_path + '\\' + 'tmscores_' + best_model + '.csv', index_col=0)
+        return tmscore_df
+    else:
+
+        tmscore_dict = {}
+
+        dir_to_parse = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\temp"
+        files = os.listdir(dir_to_parse)
+        for filename in files:
+            ls = filename.split("_")
+            o1 = ls[0].split(".")[0]
+            o2 = ls[1].split(".")[0]
+            tmscore_dict.setdefault(o1, {})
+            _, tmscore_dict[o1][o2] = parse_tmalign_out(filename) 
+
+        tmscore_df = pd.DataFrame.from_dict(tmscore_dict)
+        tmscore_df.to_csv(model_path + '\\' + best_model + '.csv')
+        return tmscore_df
 
 def clear_temp_folder():
     temp_dir = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\temp"
