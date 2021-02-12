@@ -2,6 +2,7 @@
 from Bio import SeqIO
 import pandas as pd
 import os
+import itertools
 
 def generate_pdb_df(sifts_path, model_output_path):
     model_prots_df = pd.read_csv(model_output_path)
@@ -23,3 +24,62 @@ def filter_pdb_db(pdb_db):
     pdb_db = pdb_db[pdb_db.coverage > 0.8]
 
     return pdb_db
+
+def parse_tmalign_out(filename):
+    """
+    Takes as input the path of the .out file provided by TM-Align.
+    Returns both the RMSD and the TMSCORE (the first one provided in the .out file) """
+    lines = []
+    temp_path = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\temp"
+    with open(temp_path + '\\' + filename, 'r') as f:
+        for line in f:
+            for line in itertools.islice(f, 15,21):
+                lines.append(line)
+    RMSD = lines[0].split(',')[1].split('=')[1].strip()
+    TMSCORE = lines[2].split('=')[1].split('(')[0].strip()
+
+    return float(RMSD), float(TMSCORE)
+
+def create_rmsd_matrix():
+    """
+    Takes all the files inside the temp folder, reads the rmsd values from them, 
+    and stores them into a matrix"""
+    rmsd_dict = {}
+
+    dir_to_parse = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\temp"
+    files = os.listdir(dir_to_parse)
+    for filename in files:
+        ls = filename.split("_")
+        o1 = ls[0].split(".")[0]
+        o2 = ls[1].split(".")[0]
+        rmsd_dict.setdefault(o1, {})
+        rmsd_dict[o1][o2], _ = parse_tmalign_out(filename) 
+
+    rmsd_df = pd.DataFrame.from_dict(rmsd_dict)
+    return rmsd_df
+
+def create_tmscores_matrix():
+    """
+    Takes all the files inside the temp folder, reads the tmscore values from them, 
+    and stores them into a matrix"""
+    tmscore_dict = {}
+
+    dir_to_parse = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\temp"
+    files = os.listdir(dir_to_parse)
+    for filename in files:
+        ls = filename.split("_")
+        o1 = ls[0].split(".")[0]
+        o2 = ls[1].split(".")[0]
+        tmscore_dict.setdefault(o1, {})
+        _, tmscore_dict[o1][o2] = parse_tmalign_out(filename) 
+
+    tmscore_df = pd.DataFrame.from_dict(tmscore_dict)
+    return tmscore_df
+
+def clear_temp_folder():
+    temp_dir = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\temp"
+    files = os.listdir(temp_dir)
+    for filename in files:
+        if filename.split('.')[-1] == 'out':
+            os.remove(temp_dir + '\\' + filename)
+    return
