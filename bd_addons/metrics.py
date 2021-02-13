@@ -105,7 +105,7 @@ def metrics_sequences(df, gt):
 
     f1_score = (2 * true_positives) / (2 * true_positives + false_positives + false_negatives)
 
-    return [accuracy, precision, recall, specificity, balanced_accuracy, mcc, f1_score]
+    return [len_df, accuracy, precision, recall, specificity, balanced_accuracy, mcc, f1_score]
 
 
 def metrics_8(gt, h_threshold = False, hi_threshold = False, p_threshold = False, smart_update = True):
@@ -114,13 +114,16 @@ def metrics_8(gt, h_threshold = False, hi_threshold = False, p_threshold = False
     - gt: dataframe containing ground truth proteins;
     - smart_update: if True, then the function doesn't recompute from scratch all the statistics,
     if those are already found in the metrics8.csv file.
+    - h_threshold = hmm Sequence E-value;
+    - hi_threshold = hmm i-Value;
+    - p_threshold = PsiBlast E-Value;
     """
     parsed_tblouts, parsed_domtblouts = parse_hmms()
     parsed_psiblast = parse_psiblast()
 
     metrics = []
     index_metrics = list(parsed_domtblouts.keys()) + list(parsed_psiblast.keys())
-    columns_metrics = ['accuracy', 'precision', 'recall', 'specificity', 'balanced_accuracy', 'mcc', 'f1_score']
+    columns_metrics = ['n_hits','accuracy', 'precision', 'recall', 'specificity', 'balanced_accuracy', 'mcc', 'f1_score']
     
     if h_threshold < 1 and h_threshold != False:
         h_threshold_name = str(h_threshold).split('.')[1]
