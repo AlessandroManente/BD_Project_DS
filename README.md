@@ -1,5 +1,7 @@
 # BD_Project_DS
 
+![Image](./data_team_1/_part_2/original_datasets/family_structures/pdbs_psiblast_C_4_uniref90_1iterations/cd-hit_clusterings/visualization_complete_100_mTMalign.png "Image")
+
 ## Input
 
 A representative sequence of the domain family. Columns are: group, UniProt accession, organism, Pfam identifier, Pfam name, domain position in the corresponding UniProt protein, domain sequence. Group assignments are provided here.
