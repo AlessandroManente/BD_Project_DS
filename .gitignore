@@ -5,3 +5,4 @@ data_team_1/swiss_prot/uniprot_sprot.csv
 # SIFTS PDB chains of Uniprot
 data_team_1/_part_2/original_datasets/pdb_chain_uniprot.tsv
 data_team_1/_part_2/original_datasets/uniprot_segments_observed.tsv
+data_team_1/_part_2/original_datasets/pdb_chain_cath_uniprot.tsv
