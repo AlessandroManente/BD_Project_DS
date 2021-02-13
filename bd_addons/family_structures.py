@@ -1,8 +1,13 @@
-# Here we take care of the mapping from the sifts table
+# Functions dedicated to the structural caraterization part of the project.
+import matplotlib.pyplot as plt
+import seaborn as sns
 from Bio import SeqIO
 import pandas as pd
 import os
 import itertools
+from scipy.cluster.hierarchy import linkage, dendrogram
+sns.set_theme()
+sns.set_style("whitegrid")
 
 def generate_pdb_df(sifts_path, model_output_path):
     model_prots_df = pd.read_csv(model_output_path)
@@ -43,10 +48,12 @@ def parse_tmalign_out(filename):
 def create_rmsd_matrix(best_model):
     """
     Takes all the files inside the temp folder, reads the rmsd values from them, 
-    and stores them into a matrix"""
+    stores them into a matrix and saves it into a .csv.
+    If the csv already exists, the function just reads it."""
 
     model_path = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\pdbs_{}".format(best_model)
 
+    # Check if the rmsds_....csv file is already present. If so, just read it.
     if 'rmsds_{}.csv'.format(best_model) in os.listdir(model_path):
         rmsds_df = pd.read_csv(model_path + '\\' + 'rmsds_' + best_model + '.csv', index_col=0)
         return rmsds_df
@@ -64,12 +71,16 @@ def create_rmsd_matrix(best_model):
             rmsd_dict[o1][o2], _ = parse_tmalign_out(filename) 
 
         rmsd_df = pd.DataFrame.from_dict(rmsd_dict)
+        rmsd_df.index = rmsd_df.index.map(lambda x: x[3:])
+        rmsd_df.columns = rmsd_df.columns.map(lambda x: x[3:])
+        rmsd_df.to_csv(model_path + '\\' + 'rmsds_' + best_model + '.csv')
         return rmsd_df
 
 def create_tmscores_matrix(best_model):
     """
     Takes all the files inside the temp folder, reads the tmscore values from them, 
-    and stores them into a matrix"""
+   stores them into a matrix and saves it into a .csv.
+    If the csv already exists, the function just reads it."""
 
     model_path = ".\\data_team_1\\_part_2\\original_datasets\\family_structures\\pdbs_{}".format(best_model)
 
@@ -90,7 +101,9 @@ def create_tmscores_matrix(best_model):
             _, tmscore_dict[o1][o2] = parse_tmalign_out(filename) 
 
         tmscore_df = pd.DataFrame.from_dict(tmscore_dict)
-        tmscore_df.to_csv(model_path + '\\' + best_model + '.csv')
+        tmscore_df.index = tmscore_df.index.map(lambda x: x[3:])
+        tmscore_df.columns = tmscore_df.columns.map(lambda x: x[3:])
+        tmscore_df.to_csv(model_path + '\\' + 'tmscores_' + best_model + '.csv')
         return tmscore_df
 
 def clear_temp_folder():
@@ -100,3 +113,26 @@ def clear_temp_folder():
         if filename.split('.')[-1] == 'out':
             os.remove(temp_dir + '\\' + filename)
     return
+
+def plot_heatmap(path, filename, header = ''):
+    rmsdmatrix = pd.read_csv(path+filename+'.csv',index_col=0)
+    col = list(rmsdmatrix.columns)
+    col2 = {}
+    for i in range(len(col)):
+        col2.setdefault(col[i],col[i]) 
+    rmsdmatrix = rmsdmatrix.rename(columns=col2)
+    rmsdmatrix = rmsdmatrix.rename(index=col2)
+    plt.figure(figsize = (20,15))
+    ax = sns.heatmap(rmsdmatrix,cmap="Blues", annot=False, linewidths=.3, linecolor="black")
+    plt.title(header)
+    plt.savefig(path+header+'.png')
+    plt.show()
+
+def plot_dendogram(matrix, header, save_path):
+    z = linkage(matrix, 'ward')
+    fig = plt.figure(figsize=(20, 10))
+    dn = dendrogram(z, labels = matrix.index, leaf_rotation=90)
+    plt.title(header)
+    plt.ylabel("Distance")
+    plt.xlabel("PDBs")
+    plt.savefig(save_path)
