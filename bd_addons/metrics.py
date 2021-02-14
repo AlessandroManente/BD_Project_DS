@@ -407,8 +407,13 @@ def metrics_9(parsed_domtblouts, parsed_psiblast, gt, h_threshold = False, hi_th
     conf_df = compute_con_matrix_9(parsed_domtblouts, parsed_psiblast, gt)
 
     # at the beginning: if file already there and it is not to be modified -> read it instead of computing it
-    if 'metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name) in os.listdir(cur + '\\data_team_1\\metrics'):
-        old_metrics_df = pd.read_csv(cur + '\\data_team_1\\metrics\\metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name), index_col=0)
+    # if 'metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name,
+    # p_threshold_name) in os.listdir(cur + '\\data_team_1\\metrics'):
+    if 'metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name) in os.listdir(path.join('data_team_1', 'metrics')):
+        # old_metrics_df = pd.read_csv(cur +
+        # '\\data_team_1\\metrics\\metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name,
+        # hi_threshold_name, p_threshold_name), index_col=0)
+        old_metrics_df = pd.read_csv(path.join('data_team_1', 'metrics', 'metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name)), index_col=0)
         
         if old_metrics_df.index.to_list() == index_metrics:
             return old_metrics_df, conf_df
@@ -418,7 +423,7 @@ def metrics_9(parsed_domtblouts, parsed_psiblast, gt, h_threshold = False, hi_th
             metrics_list = metrics_computation(conf_df)
             metrics_df = pd.DataFrame(metrics_list, index=conf_df.index, columns=columns_metrics)
             
-            metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name))
+            metrics_df.to_csv(path.join('data_team_1', 'metrics', 'metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name)))
 
             return metrics_df, conf_df
     
@@ -426,7 +431,7 @@ def metrics_9(parsed_domtblouts, parsed_psiblast, gt, h_threshold = False, hi_th
         metrics_list = metrics_computation(conf_df)
         metrics_df = pd.DataFrame(metrics_list, index=conf_df.index, columns=columns_metrics)
         
-        metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name))
+        metrics_df.to_csv(path.join('data_team_1', 'metrics', 'metrics_9_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name)))
 
         return metrics_df, conf_df
 
