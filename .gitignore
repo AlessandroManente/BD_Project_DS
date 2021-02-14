@@ -15,3 +15,5 @@ data_team_1/_part_2/functional_analysis/uniprot_sprot.xml.gz
 data_team_1/_part_2/functional_analysis/uniprot_sprot.xml.gz.1
 
 .ipynb_checkpoints
+pvals.csv
+data_team_1/_part_2/original_datasets/swissprot_goa_all.goa.gz
