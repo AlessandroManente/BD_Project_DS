@@ -14,6 +14,9 @@ def parse_obo(obo_file):
                 k, v = line[:2]
                 if k == "id" and v.startswith("GO:"):
                     obj["id"] = v
+                elif k == "alt_id" and v.startswith("GO:"):
+                    obj.setdefault("alt_id",[])
+                    obj['alt_id'].append(v)
                 elif k == "name":
                     obj["def"] = v
                 elif k == "is_a" and v.startswith("GO:"):

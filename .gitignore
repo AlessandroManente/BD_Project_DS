@@ -7,6 +7,8 @@ data_team_1/_part_2/original_datasets/pdb_chain_uniprot.tsv
 data_team_1/_part_2/original_datasets/uniprot_segments_observed.tsv
 data_team_1/_part_2/original_datasets/pdb_chain_cath_uniprot.tsv
 data_team_1/_part_2/original_datasets/cath_b.20201021.tsv
+data_team_1/_part_2/original_datasets/swissprot_goa_all.goa
+data_team_1/_part_2/original_datasets/swissprot_goa_manual.goa
 
 # For GO annotations
 data_team_1/_part_2/functional_analysis/uniprot_sprot.xml.gz
