@@ -1,6 +1,7 @@
 from Bio import SeqIO, SearchIO
 import pandas as pd
 import os
+from os import path
 from bd_addons.HmmPy import *
 import time
 import matplotlib.pyplot as plt
@@ -12,11 +13,11 @@ sns.set_style("whitegrid")
 from bd_addons.HmmPy import *
 
 cur = os.getcwd()
-path_swiss_prot = cur + '\\data_team_1\\swiss_prot\\uniprot_sprot.fasta'
+path_swiss_prot = path.join('data_team_1', 'swiss_prot', 'uniprot_sprot.fasta')
 
 
 def swiss_prot_parser():
-    if 'uniprot_sprot.csv' not in os.listdir(cur + '\\data_team_1\\swiss_prot\\'):
+    if 'uniprot_sprot.csv' not in os.listdir(path.join('data_team_1', 'swiss_prot')):
         swissprot = list(SeqIO.parse(path_swiss_prot, "fasta"))
         swissprot = [[str(x.seq), x.id, x.description] for x in swissprot]
 
@@ -26,14 +27,17 @@ def swiss_prot_parser():
         swissprot_df.to_csv(cur + '\\data_team_1\\swiss_prot\\' + 'uniprot_sprot.csv')
     
     else:
-        swissprot_df = pd.read_csv(cur + '\\data_team_1\\swiss_prot\\' + 'uniprot_sprot.csv')
+        swissprot_df = pd.read_csv(path.join('data_team_1', 'swiss_prot', 'uniprot_sprot.csv'))
     
     return swissprot_df
 
 
 def parse_psiblast():
-    dirs_to_parse = [cur + '\\data_team_1\\PSSMs\\PSSM_' + a + '\\to_parse' for a in ['C', 'M', 'O']]
-    dirs_parsed = [cur + '\\data_team_1\\PSSMs\\PSSM_' + a + '\\parsed' for a in ['C', 'M', 'O']]
+    dirs_to_parse = [path.join('data_team_1', 'PSSMs', 'PSSM_{}'.format(a), 'to_parse') for a in ['C', 'M', 'O']]
+    #dirs_to_parse = [cur + '\\data_team_1\\PSSMs\\PSSM_' + a + '\\to_parse' for
+    #a in ['C', 'M', 'O']]
+    dirs_parsed = [path.join('data_team_1', 'PSSMs', 'PSSM_{}'.format(a), 'parsed') for a in ['C', 'M', 'O']]
+    #dirs_parsed = [cur + '\\data_team_1\\PSSMs\\PSSM_' + a + '\\parsed' for a in ['C', 'M', 'O']]
     
     parsed_dfs = {}
 
@@ -51,7 +55,7 @@ def psiblast_parser(dir_to_parse, filename, extension, dir_parsed):
     if filename + '.csv' not in os.listdir(dir_parsed): 
         # print("Parsing {} ...".format(filename))
         hits_dict = {}
-        blast_records = SearchIO.parse(dir_to_parse + '\\' + filename + '.' + extension, 'blast-xml')
+        blast_records = SearchIO.parse(path.join(dir_to_parse, filename+'.'+extension), 'blast-xml')
         for blast_record in blast_records:
             for rec in blast_record.hits:
                 hits_dict.setdefault("ids",[]).append(rec.id.split('|')[1])
@@ -61,17 +65,17 @@ def psiblast_parser(dir_to_parse, filename, extension, dir_parsed):
                 hits_dict.setdefault("bitscore",[]).append(rec.hsps[0].bitscore)
 
         lengths = []
-        with open(dir_to_parse + '\\' + filename + '.' + extension, 'r') as f:
+        with open(path.join(dir_to_parse, filename+'.'+extension), 'r') as f:
             for line in f:
                 if(line[2:11] == '<Hit_len>'):
                     lengths.append(line.split('>')[1].split('<')[0])
         hits_dict["protein_length"] = lengths
             
         hits_df = pd.DataFrame.from_dict(hits_dict)
-        hits_df.to_csv(dir_parsed + '\\' + filename + '.csv')
+        hits_df.to_csv(path.join(dir_parsed, filename+'.csv'))
     
     else:
-        hits_df = pd.read_csv(dir_parsed + '\\' + filename + '.csv')
+        hits_df = pd.read_csv(path.join(dir_parsed, filename+'.csv'))
     
     return hits_df
     
@@ -84,11 +88,13 @@ def metrics_sequences(df, gt):
     len_swissprot = len(swissprot_df)
     len_df = len(df)
     
-
-    true_positives = (df['ids'].isin(gt_acc)).sum() # intersection between gt.ids and df.ids
-    true_negatives = ((~swissprot_df['ids'].isin(gt_acc)) & (~swissprot_df['ids'].isin(df_ids))).sum() # rows in swissprot_df but not in gt.ids and df.ids
+    # intersection between gt.ids and df.ids
+    true_positives = (df['ids'].isin(gt_acc)).sum() 
+    # rows in swissprot_df but not in gt.ids and df.ids
+    true_negatives = ((~swissprot_df['ids'].isin(gt_acc)) & (~swissprot_df['ids'].isin(df_ids))).sum() 
     false_positives = len_df - true_positives
-    false_negatives = len_swissprot - len_df - true_negatives#swissprot_df['ids'].apply(lambda x: 1 if x not in df_ids else 0).sum() - true_negatives
+    #swissprot_df['ids'].apply(lambda x: 1 if x not in df_ids else 0).sum() - true_negatives
+    false_negatives = len_swissprot - len_df - true_negatives
     
     
     accuracy = (true_positives + true_negatives) / (true_positives + true_negatives + false_positives + false_negatives)
@@ -140,8 +146,13 @@ def metrics_8(gt, h_threshold = False, hi_threshold = False, p_threshold = False
     else:
         p_threshold_name = p_threshold
     
-    if 'metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name) in os.listdir(cur + '\\data_team_1\\metrics'):
-        old_metrics_df = pd.read_csv(cur + '\\data_team_1\\metrics\\metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name), index_col=0)
+    # if 'metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name,
+    # p_threshold_name) in os.listdir(cur + '\\data_team_1\\metrics'):
+    if 'metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name) in os.listdir(path.join('data_team_1', 'metrics')):
+        # old_metrics_df = pd.read_csv(cur +
+        # '\\data_team_1\\metrics\\metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name,
+        # hi_threshold_name, p_threshold_name), index_col=0)
+        old_metrics_df = pd.read_csv(path.join('data_team_1', 'metrics', 'metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name)), index_col=0)
     else:
         old_metrics_df = pd.DataFrame()
 
@@ -184,7 +195,7 @@ def metrics_8(gt, h_threshold = False, hi_threshold = False, p_threshold = False
         
     metrics_df = pd.DataFrame(metrics, index_metrics, columns_metrics)
 
-    metrics_df.to_csv(cur + '\\data_team_1\\metrics\\metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name))
+    metrics_df.to_csv(path.join('data_team_1', 'metrics', 'metrics_8_{0}_{1}_{2}.csv'.format(h_threshold_name, hi_threshold_name, p_threshold_name)))
 
     return metrics_df, parsed_tblouts, parsed_domtblouts, parsed_psiblast
 
@@ -420,7 +431,7 @@ def metrics_9(parsed_domtblouts, parsed_psiblast, gt, h_threshold = False, hi_th
         return metrics_df, conf_df
 
 
-def plot_metrics_8(metrics_df):
+def plot_metrics(metrics_df):
     col= list(metrics_df.columns)
     x = np.arange(metrics_df.shape[0])
     c = np.random.rand(metrics_df.shape[0],3)
