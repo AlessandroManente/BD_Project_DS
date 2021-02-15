@@ -437,7 +437,7 @@ def metrics_9(parsed_domtblouts, parsed_psiblast, gt, h_threshold = False, hi_th
 
 
 def plot_metrics(metrics_df):
-    col= list(metrics_df.columns)
+    col= metrics_df.columns.to_list()
     x = np.arange(metrics_df.shape[0])
     c = np.random.rand(metrics_df.shape[0],3)
     for i in col:
@@ -445,6 +445,54 @@ def plot_metrics(metrics_df):
         ax.bar(metrics_df.index,list(metrics_df[i]), color = c)
         ax.set_xticks(x)
         ax.set_xticklabels(metrics_df.index, rotation=65)
+        if i == 'n_hits':
+            ax.set_ylim((0,100))
+        else:
+            ax.set_ylim((0,1))
+        plt.title(i)
+        #fig.savefig(i+".png")
+       
+    
+def plot_metrics_models(metrics_df, num=8):
+    if num == 8:
+        metrics_df = metrics_df.iloc[:,1:]
+    col= metrics_df.index.to_list()
+    x = np.arange(metrics_df.shape[1])
+    c = np.random.rand(metrics_df.shape[1],3)
+    for i in col:
+        fig, ax = plt.subplots(figsize=(20,10))
+        ax.bar(metrics_df.columns,list(metrics_df.loc[i,:]), color = c)
+        ax.set_xticks(x)
+        ax.set_xticklabels(metrics_df.columns, rotation=65)
         ax.set_ylim((0,1))
         plt.title(i)
         #fig.savefig(i+".png")
+
+
+def plot_metrics_summary(metrics_df, num=8, threshold_hmms_e_value=None, threshold_hmms_i_e_value=None, threshold_pssm_e_value=None):
+    if num == 8:
+        metrics_df = metrics_df.iloc[:,1:]
+    print(len(metrics_df.columns.to_list()))
+    # col= metrics_df.index.to_list()
+    x = np.arange(metrics_df.shape[1])
+
+    list_bars = [metrics_df.iloc[i,:].to_list() for i in range(len(metrics_df))]
+    offsets = np.arange(len(metrics_df)) - 2
+    color = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'][:len(metrics_df)]
+    
+    width = 0.15
+    
+    plt.figure(figsize=(15, 10))
+
+    ax = plt.subplot(111)
+    for i, el in enumerate(list_bars):
+        ax.bar(x + offsets[i] * width, el, width=width, color = color[i], align='center')
+    
+    ax.set_xticks(x)
+    ax.set_xticklabels(metrics_df.columns.to_list(), rotation=65)
+    
+    ax.legend([el.split('.')[0] for el in metrics_df.index.to_list()])
+    
+    plt.savefig(path.join('data_team_1', 'metrics', 'best_models_{0}_{1}_{2}_{3}.png'.format(threshold_hmms_e_value, threshold_hmms_i_e_value, threshold_pssm_e_value, num)))
+
+    plt.show()
