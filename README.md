@@ -1,6 +1,6 @@
 # BD_Project_DS
 
-![Image](./data_team_1/_part_2/original_datasets/family_structures/pdbs_psiblast_C_4_uniref90_1iterations/cd-hit_clusterings/visualization_complete_100_mTMalign.png "Image")
+![Image](./data_team_1/_part_2/original_datasets/family_structures/pdbs_psiblast_M_4_denoised1_uniref90_1iterations/common_core_visualized.png "Image")
 
 ## Input
 
