@@ -117,7 +117,7 @@ def create_tmscores_matrix(best_model):
         #                          '.csv',
         #                          index_col=0)
         tmscore_df = pd.read_csv(path.join(
-            'model_path', 'tmscores_{}.csv'.format(best_model)),
+            model_path, 'tmscores_{}.csv'.format(best_model)),
                                  index_col=0)
         return tmscore_df
     else:
@@ -170,7 +170,7 @@ def plot_heatmap(path, filename, header=''):
                      cmap="Blues",
                      annot=False,
                      linewidths=.3,
-                     linecolor="black")
+                     linecolor="black", vmin=0)
     plt.title(header)
     plt.savefig(path + header + '.png')
     plt.show()
